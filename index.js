@@ -24,9 +24,10 @@ Program.command('add')
 inquirer
   .prompt([
     {
-      type:'input',
+      type:'list',
     name:"favorite",
-    message:"what is your fav"
+    message:"what is your favo",
+    choices:['js',"ruby","java"]
     }
   ])
   .then((answers) => {
@@ -35,7 +36,7 @@ inquirer
   .catch((error) => {
     if (error.isTtyError) {
       // Prompt couldn't be rendered in the current environment
-    } else {
+    } else  {
       // Something else went wrong
     }
   });
