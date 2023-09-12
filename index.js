@@ -39,8 +39,19 @@ inquirer
   ])
   .then((answers) => {
     console.log(chalk.white.bgRed("The Favorite language is", answers.favorite))
-    const hatedLanguage = chalkAnimation.rainbow(`The hated language is ${answers.hated}`)
-    hatedLanguage.start()
+    const hatedLanguage = chalkAnimation.rainbow(`The hated language is ${answers.hated}`,3)
+    
+
+    setInterval(() => {
+      setTimeout(() => {
+        hatedLanguage.stop()  
+      }, 1000);
+      hatedLanguage.start()
+    }, 2000);
+
+    
+    
+    
   })
   
   .catch((error) => {
