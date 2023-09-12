@@ -7,6 +7,7 @@ import {hello,hi} from "./hello.js"
 import {Command} from 'commander'
 import inquirer from 'inquirer';
 import chalk from 'chalk'
+import chalkAnimation from 'chalk-animation'
 const Program = new Command()
 
 
@@ -27,13 +28,21 @@ inquirer
     {
       type:'list',
       name:"favorite",
-      message:"what is your favo",
+      message:"what is your favorite language",
       choices:['js',"ruby","java"]
+    },{
+      type:'checkbox',
+      name:"hated",
+      message:"what is your hated language",
+      choices:['js',"ruby","java","php","python"]
     }
   ])
   .then((answers) => {
-    console.log(chalk.white.bgRed("The Favorite Course is" , answers.favorite))
+    console.log(chalk.white.bgRed("The Favorite language is", answers.favorite))
+    const hatedLanguage = chalkAnimation.rainbow(`The hated language is ${answers.hated}`)
+    hatedLanguage.start()
   })
+  
   .catch((error) => {
     if (error.isTtyError) {
       // Prompt couldn't be rendered in the current environment
