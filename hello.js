@@ -1,6 +1,13 @@
 const hello = ()=>{
     console.log("hello")
 }
-export {
-    hello
+const hi = ()=>{
+  console.log("hi")
 }
+
+export {
+  hello,hi
+} 
+
+
+
