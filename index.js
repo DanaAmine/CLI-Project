@@ -25,9 +25,9 @@ inquirer
   .prompt([
     {
       type:'list',
-    name:"favorite",
-    message:"what is your favo",
-    choices:['js',"ruby","java"]
+      name:"favorite",
+      message:"what is your favo",
+      choices:['js',"ruby","java"]
     }
   ])
   .then((answers) => {
