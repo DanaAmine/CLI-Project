@@ -1,5 +1,5 @@
 const hello = ()=>{
-  console.log("hello")
+    console.log("hello")
 }
 const hi = ()=>{
   console.log("hi")
@@ -8,3 +8,6 @@ const hi = ()=>{
 export {
   hello,hi
 } 
+
+
+
