@@ -8,6 +8,7 @@ import {Command} from 'commander'
 import inquirer from 'inquirer';
 import chalk from 'chalk'
 import chalkAnimation from 'chalk-animation'
+import fs from 'fs';
 const Program = new Command()
 
 
@@ -40,7 +41,11 @@ inquirer
   .then((answers) => {
     console.log(chalk.white.bgRed("The Favorite language is", answers.favorite))
     const hatedLanguage = chalkAnimation.rainbow(`The hated language is ${answers.hated}`,3)
-
+    fs.writeFile('languages.json','utf8',JSON.stringify(answers),(data)=>{
+      if(data){
+        console.log("done writing")
+      }
+    })
     setInterval(() => {
         hatedLanguage.start();
        setTimeout(()=>{
