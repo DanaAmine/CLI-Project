@@ -6,6 +6,7 @@
 import {hello,hi} from "./hello.js"
 import {Command} from 'commander'
 import inquirer from 'inquirer';
+import chalk from 'chalk'
 const Program = new Command()
 
 
@@ -17,7 +18,7 @@ Program
 
 Program.command('add')
 .description('Add a new question')
-  .argument('<string>', 'string to split')
+.alias('a')
   .action((str)=>{
     
 
@@ -31,7 +32,7 @@ inquirer
     }
   ])
   .then((answers) => {
-    console.log(answers.favorite)
+    console.log(chalk.white.bgRed("The Favorite Course is" , answers.favorite))
   })
   .catch((error) => {
     if (error.isTtyError) {
