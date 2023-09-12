@@ -5,7 +5,7 @@
 
 import {hello,hi} from "./hello.js"
 import {Command} from 'commander'
-
+import inquirer from 'inquirer';
 const Program = new Command()
 
 
@@ -19,11 +19,30 @@ Program.command('add')
 .description('Add a new question')
   .argument('<string>', 'string to split')
   .action((str)=>{
-     console.log(str)
+    
+
+inquirer
+  .prompt([
+    {
+      type:'input',
+    name:"favorite",
+    message:"what is your fav"
+    }
+  ])
+  .then((answers) => {
+    console.log(answers.favorite)
+  })
+  .catch((error) => {
+    if (error.isTtyError) {
+      // Prompt couldn't be rendered in the current environment
+    } else {
+      // Something else went wrong
+    }
+  });
   })
 
 Program.parse()
-hello()
+// hello()
 
 
 // const sleep = (ms=8000)=>
