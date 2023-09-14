@@ -3,7 +3,7 @@
 // import figlet from 'figlet'
 // import gradient from 'gradient-string';
 
-import { hello, hi } from "./hello.js";
+import { hello,Task} from "./hello.js";
 import { Command } from "commander";
 import inquirer from "inquirer";
 import chalk from "chalk";
@@ -16,13 +16,19 @@ Program.name("Interactive-Game")
     "Interactive-Game Help people to learn many things about backend"
   )
   .version("1.0.0");
-
+hello(Program)
+Task(Program)
 Program.command("add")
   .description("Add a new question")
   .alias("a")
   .action(() => {
     inquirer
       .prompt([
+        {
+          type: "input",
+          name: "person",
+          message: "how are you?",
+        },
         {
           type: "list",
           name: "favorite",
@@ -46,7 +52,7 @@ Program.command("add")
         );
 
         hatedLanguage.start();
-        const fav = answers.favorite;
+        
         fs.writeFile("./languages.json", JSON.stringify(answers), (err) => {
           if (err) {
             console.error(err); // Log the error
@@ -73,7 +79,8 @@ Program.command("list")
         console.error("file doesn't exist");
       }
       const Data = JSON.parse(data)
-      console.table(Data);
+      const DataArray = [Data]
+      console.table(DataArray);
     });
   });
 
