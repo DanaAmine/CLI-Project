@@ -3,7 +3,6 @@ import figlet from "figlet";
 import chalk from "chalk";
 import inquirer from "inquirer";
 import fs from "fs/promises";
-import { existsSync } from "fs";
 
 const hello = (Program) => {
   Program.command("welcome <username>")
@@ -36,10 +35,10 @@ const mainMenu = () => {
         type: "list",
         name: "action",
         message: "Task Manager CLI",
-        choices: ["Add a task", "List tasks", "Delete tasks", "Exit"],
+        choices: ["Add a task", "List tasks", "Delete tasks", "Search", "Exit"],
       },
     ])
-    .then((answers) => {
+    .then(async (answers) => {
       switch (answers.action) {
         case "Add a task":
           addTask();
@@ -49,6 +48,9 @@ const mainMenu = () => {
           break;
         case "Delete tasks":
           deleteTask();
+          break;
+        case "Search":
+          searchUsername("amine");
           break;
         case "Exit":
           console.log("good bye");
@@ -146,24 +148,30 @@ const deleteTask = async () => {
 };
 
 const searchUsername = async (username) => {
-  if (fs.existsSync("./languages.json")) {
-    fs.readFile("languages.json", { encoding: "utf-8" }, (err, data) => {
-      if (err) {
-        console.error("File doesn't exists");
-        return;
+  try {
+    const data = await fs.readFile("languages.json", { encoding: "utf-8" });
+    const parsedData = JSON.parse(data);
+    const users = [];
+
+    for (const element of parsedData) {
+      if (element.username === username) {
+        users.push(element);
       }
-      let user = [];
-      const parsedData = JSON.parse(data);
-      for (element of parsedData) {
-        if (element.username === username) {
-          user.push(element);
-        }
-      }
-      if (user.length === 0) console.log("No user has been found.");
-      return user;
-    });
+    }
+
+    if (users.length === 0) {
+      console.log("No user has been found.");
+    } else {
+      console.table(users);
+    }
+
+    mainMenu(); 
+  } catch (err) {
+    console.error("Error:", err);
+    mainMenu();
   }
 };
+
 const writeTasks = async (tasks) => {
   await fs.writeFile("./tasks.json", JSON.stringify(tasks, null, 2));
 };
