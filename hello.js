@@ -64,8 +64,7 @@ const mainMenu = (()=>{
           break;
       }
     });
-};
-
+});
 
 const addTask =()=>{
   inquirer
@@ -88,9 +87,6 @@ const addTask =()=>{
       mainMenu()
   })
 }
-
-
-
 
 const readTasks = async() =>{
   try{
@@ -123,8 +119,8 @@ const listTask = async() =>{
     console.error('Error:', error);
   }
   mainMenu();
-
 }
+
 const deleteTask = async () => {
   try {
     const tasks = await readTasks(); // Read tasks asynchronously
@@ -187,11 +183,6 @@ const searchUsername = async (username) => {
 const writeTasks = async (tasks) => {
   await fs.writeFile("./tasks.json", JSON.stringify(tasks, null, 2));
 };
-
-
-const writeTasks = async(tasks) =>{
-  await fs.writeFile('./tasks.json', JSON.stringify(tasks,null,2))
-}
 
 
 export {
