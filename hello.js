@@ -2,7 +2,9 @@ import { Command, program } from "commander";
 import figlet from "figlet";
 import chalk from "chalk";
 import inquirer from "inquirer";
-import fs from 'fs/promises' 
+
+import fs from "fs/promises";
+
 
 const hello = (Program)=>{
     Program.command("welcome <username>")
@@ -35,38 +37,35 @@ const Task = (Program)=>{
 
 const mainMenu = (()=>{
   inquirer
-  .prompt([
-    {
-      type: 'list',
-      name: 'action',
-      message: 'Task Manager CLI',
-      choices: [
-        'Add a task',
-        'List tasks',
-        'Delete tasks',
-        'Exit',
-      ],
-    },
-  ])
-  .then((answers)=>{
-     switch(answers.action){
-       case 'Add a task':
-        addTask()
-        break
-       case 'List tasks':
-        listTask()
-        break
-       case 'Delete tasks':
-        deleteTask()
-        break
-       case 'Exit':
-        console.log("good bye")
-        break
+    .prompt([
+      {
+        type: "list",
+        name: "action",
+        message: "Task Manager CLI",
+        choices: ["Add a task", "List tasks", "Delete tasks", "Search", "Exit"],
+      },
+    ])
+    .then(async (answers) => {
+      switch (answers.action) {
+        case "Add a task":
+          addTask();
+          break;
+        case "List tasks":
+          listTask();
+          break;
+        case "Delete tasks":
+          deleteTask();
+          break;
+        case "Search":
+          searchUsername("amine");
+          break;
+        case "Exit":
+          console.log("good bye");
+          break;
+      }
+    });
+};
 
-     }
-  })
-
-})
 
 const addTask =()=>{
   inquirer
@@ -157,6 +156,36 @@ const deleteTask = async () => {
   } catch (error) {
     console.error('Error:', error);
   }
+};
+
+
+const searchUsername = async (username) => {
+  try {
+    const data = await fs.readFile("languages.json", { encoding: "utf-8" });
+    const parsedData = JSON.parse(data);
+    const users = [];
+
+    for (const element of parsedData) {
+      if (element.username === username) {
+        users.push(element);
+      }
+    }
+
+    if (users.length === 0) {
+      console.log("No user has been found.");
+    } else {
+      console.table(users);
+    }
+
+    mainMenu(); 
+  } catch (err) {
+    console.error("Error:", err);
+    mainMenu();
+  }
+};
+
+const writeTasks = async (tasks) => {
+  await fs.writeFile("./tasks.json", JSON.stringify(tasks, null, 2));
 };
 
 

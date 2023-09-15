@@ -3,7 +3,7 @@
 // import figlet from 'figlet'
 // import gradient from 'gradient-string';
 
-import { hello,Task} from "./hello.js";
+import { hello, Task } from "./hello.js";
 import { Command } from "commander";
 import inquirer from "inquirer";
 import chalk from "chalk";
@@ -16,14 +16,19 @@ Program.name("Interactive-Game")
     "Interactive-Game Help people to learn many things about backend"
   )
   .version("1.0.0");
-hello(Program)
-Task(Program)
+hello(Program);
+Task(Program);
 Program.command("add")
   .description("Add a new question")
   .alias("a")
   .action(() => {
     inquirer
       .prompt([
+        {
+          type: "input",
+          name: "username",
+          message: "What's your username?",
+        },
         {
           type: "input",
           name: "person",
@@ -52,14 +57,36 @@ Program.command("add")
         );
 
         hatedLanguage.start();
-        
-        fs.writeFile("./languages.json", JSON.stringify(answers), (err) => {
-          if (err) {
-            console.error(err); // Log the error
-          } else {
-            console.log("Data has been written to languags.json");
-          }
-        });
+        if (fs.existsSync("languages.json")) {
+          fs.readFile("languages.json", { encoding: "utf-8" }, (err, data) => {
+            if (err) {
+              console.error("Can't read file.");
+            } else {
+              let user = [];
+              const parsedData = JSON.parse(data);
+              console.log("data", data);
+              if (parsedData) user = [parsedData];
+              console.log(user);
+              user.push(answers);
+
+              fs.writeFile("languages.json", JSON.stringify(user), (err) => {
+                if (err) {
+                  console.error(err); // Log the error
+                } else {
+                  console.log("Data has been written to languags.json");
+                }
+              });
+            }
+          });
+        }else{
+          fs.writeFile("languages.json", JSON.stringify(answers), (err) => {
+            if (err) {
+              console.error(err); // Log the error
+            } else {
+              console.log("Data has been written to languags.json");
+            }
+          });
+        }
       })
 
       .catch((error) => {
@@ -78,8 +105,8 @@ Program.command("list")
       if (err) {
         console.error("file doesn't exist");
       }
-      const Data = JSON.parse(data)
-      const DataArray = [Data]
+      const Data = JSON.parse(data);
+      const DataArray = [Data];
       console.table(DataArray);
     });
   });
