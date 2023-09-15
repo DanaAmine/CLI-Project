@@ -79,7 +79,7 @@ Program.command("add")
             }
           });
         }else{
-          fs.writeFile("languages.json", JSON.stringify(answers), (err) => {
+          fs.writeFile("languages.json", `[${JSON.stringify(answers)}]`, (err) => {
             if (err) {
               console.error(err); // Log the error
             } else {
