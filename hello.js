@@ -4,6 +4,7 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 
 import fs from "fs/promises";
+import fsd from "fs";
 
 const hello = (Program) => {
   Program.command("welcome <username>")
@@ -65,17 +66,37 @@ const addTask = () => {
     .prompt([
       {
         type: "input",
+        name: "username",
+        message: "Enter the user:",
+      },
+      {
+        type: "input",
         name: "task",
         message: "Enter the task:",
       },
     ])
     .then(async (answers) => {
       const task = await answers.task.trim();
-      if (task) {
-        const tasks = await readTasks();
-        tasks.push(task);
-        await writeTasks(tasks);
-        console.log(`Task "${task}" added successfully.`);
+      const username = await answers.username.trim();
+      if (task && username) {
+        const data = await readTasks();
+        if (data.length !== 0) {
+          const dataArray = Object.values(data);
+          const dataFetch = dataArray.filter(
+            (element) => element.name === username
+          );
+          console.log(dataFetch)
+          const tasks = dataFetch[0].task;
+          
+
+          console.log(tasks)
+          tasks.push(task);
+          const newData = { name: username, task: tasks };
+
+          dataArray.push(newData);
+          await writeTasks(newData);
+          console.log(`Task "${data}" added successfully.`);
+        }
       } else {
         console.error("can not be empty");
       }
@@ -154,8 +175,9 @@ const searchUsername = async (username) => {
     const data = await fs.readFile("languages.json", { encoding: "utf-8" });
     const parsedData = JSON.parse(data);
     const usersArray = Object.values(parsedData);
-    const filteredUsers = usersArray.filter((element) => element.username === username);
-
+    const filteredUsers = usersArray.filter(
+      (element) => element.username === username
+    );
 
     if (filteredUsers.length === 0) {
       console.log("No user has been found.");
@@ -171,7 +193,11 @@ const searchUsername = async (username) => {
 };
 
 const writeTasks = async (tasks) => {
-  await fs.writeFile("./tasks.json", JSON.stringify(tasks, null, 2));
+  if (fsd.existsSync("./tasks.json")) {
+    await fs.writeFile("./tasks.json", JSON.stringify(tasks, null, 2));
+  } else {
+    await fs.writeFile("./tasks.json", `[${JSON.stringify(tasks, null, 2)}]`);
+  }
 };
 
 export { hello, Task };
