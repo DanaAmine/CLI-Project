@@ -4,6 +4,7 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 
 import fs from "fs/promises";
+
 import { existsSync } from "fs";
 
 const hello = (Program) => {
@@ -46,7 +47,7 @@ const mainMenu = () => {
           addTask();
           break;
         case "List tasks":
-          listTask();
+          listTasks()
           break;
         case "Delete tasks":
           deleteTask();
@@ -60,6 +61,7 @@ const mainMenu = () => {
       }
     });
 };
+
 
 const addTask = async () => {
   let { username, task } = await inquirer.prompt([
@@ -89,6 +91,7 @@ const addTask = async () => {
       });
       if (exist !== -1) {
         data[exist].task.push(task);
+
       } else {
         data.push(newData);
       }
@@ -117,22 +120,35 @@ const readTasks = async () => {
   }
 };
 
-const listTask = async () => {
-  try {
-    const tasks = await readTasks();
-    if (tasks.length === 0) {
-      console.log("No tasks found.");
-    } else {
-      console.log("Tasks:");
+const listTasks = async () => {
+  const userInput = await inquirer.prompt([
+    {
+      type: "input",
+      name: "username",
+      message: "Enter the username",
+    },
+  ]);
+
+  const username = userInput.username; // Access the 'username' property
+  const data = await readTasks();
+  const user = data.find((element) => element.username === username);
+
+  if (user) {
+    const tasks = user.task;
+    if (tasks.length > 0) {
+      console.log(`Tasks for ${username}:`);
       tasks.forEach((task, index) => {
         console.log(`${index + 1}. ${task}`);
       });
+    } else {
+      console.log(`No tasks found for ${username}`);
     }
-  } catch (error) {
-    console.error("Error:", error);
+  } else {
+    console.log(username.username)
+    console.log(`User ${username} not found`);
   }
-  mainMenu();
 };
+
 
 const deleteTask = async () => {
   try {
@@ -197,10 +213,12 @@ const searchUsername = async () => {
 };
 
 const writeTasks = async (tasks) => {
+
   if (existsSync("tasks.json")) {
     await fs.writeFile("tasks.json", JSON.stringify(tasks, null, 2));
   } else {
     await fs.writeFile("tasks.json", `[${JSON.stringify(tasks, null, 2)}]`);
+
   }
 };
 
