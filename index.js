@@ -64,11 +64,8 @@ Program.command("add")
             } else {
               let user = [];
               const parsedData = JSON.parse(data);
-              console.log("data", data);
-              if (parsedData) user = [parsedData];
-              console.log(user);
+              if (parsedData) user = parsedData;
               user.push(answers);
-
               fs.writeFile("languages.json", JSON.stringify(user), (err) => {
                 if (err) {
                   console.error(err); // Log the error

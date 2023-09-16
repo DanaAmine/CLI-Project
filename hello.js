@@ -4,6 +4,7 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 
 import fs from "fs/promises";
+import { existsSync } from "fs";
 
 const hello = (Program) => {
   Program.command("welcome <username>")
@@ -60,39 +61,49 @@ const mainMenu = () => {
     });
 };
 
-const addTask = () => {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "username",
-        message: "Enter Username :",
-      },
-      {
-        type: "input",
-        name: "task",
-        message: "Enter the task:",
-      },
-    ])
-    .then(async (answers) => {
-      const username = await answers.username;
-      const task = await answers.task.trim();
-      if (task && username) {
-        const tasks = await readTasks();
-        tasks.push(task);
-        await writeTasks(tasks);
-        console.log(`Task "${task}" added successfully.`);
+const addTask = async () => {
+  let { username, task } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "username",
+      message: "Enter Username :",
+    },
+    {
+      type: "input",
+      name: "task",
+      message: "Enter the task:",
+    },
+  ]);
+  task = task?.trim();
+  if (task && username) {
+    const data = await readTasks();
+    const newData = { username, task: [task] };
+    if (data.length === 0) {
+      await writeTasks(newData);
+    } else {
+      const userIndex = data.map((element, index) => {
+        if (username === element.username) {
+          return index;
+        }
+      });
+      if (!userIndex.includes(undefined)) {
+        data[userIndex].task.push(task);
       } else {
-        console.error("can not be empty");
+        data.push(newData);
       }
-      mainMenu();
-    });
+      await writeTasks(data);
+    }
+  } else {
+    console.error("can not be empty");
+  }
+  mainMenu();
 };
 
 const readTasks = async () => {
   try {
-    const data = await fs.readFile("./tasks.json", "utf-8");
-    return JSON.parse(data);
+    const data = await fs.readFile("tasks.json", "utf-8");
+
+    return data ? JSON.parse(data) : [];
   } catch (error) {
     if (error.code === "ENOENT") {
       // Handle the case when the file doesn't exist
@@ -185,7 +196,11 @@ const searchUsername = async () => {
 };
 
 const writeTasks = async (tasks) => {
-  await fs.writeFile("./tasks.json", JSON.stringify(tasks, null, 2));
+  if (existsSync("tasks.json")) {
+    await fs.writeFile("tasks.json", JSON.stringify(tasks, null, 2));
+  } else {
+    await fs.writeFile("tasks.json", `[${JSON.stringify(tasks, null, 2)}]`);
+  }
 };
 
 export { hello, Task };
