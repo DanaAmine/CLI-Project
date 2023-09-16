@@ -64,14 +64,20 @@ const addTask = () => {
   inquirer
     .prompt([
       {
+        type:"input",
+        name:"username",
+        message:"Enter Username :"
+      },
+      {
         type: "input",
         name: "task",
         message: "Enter the task:",
-      },
+      }
     ])
     .then(async (answers) => {
+      const username = await answers.username;
       const task = await answers.task.trim();
-      if (task) {
+      if (task && username) {
         const tasks = await readTasks();
         tasks.push(task);
         await writeTasks(tasks);
