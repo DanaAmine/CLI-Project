@@ -47,7 +47,7 @@ const mainMenu = () => {
           addTask();
           break;
         case "List tasks":
-          listTasks()
+          listTasks();
           break;
         case "Delete tasks":
           deleteTask();
@@ -61,7 +61,6 @@ const mainMenu = () => {
       }
     });
 };
-
 
 const addTask = async () => {
   let { username, task } = await inquirer.prompt([
@@ -91,7 +90,6 @@ const addTask = async () => {
       });
       if (exist !== -1) {
         data[exist].task.push(task);
-
       } else {
         data.push(newData);
       }
@@ -144,40 +142,62 @@ const listTasks = async () => {
       console.log(`No tasks found for ${username}`);
     }
   } else {
-    console.log(username.username)
+    console.log(username.username);
     console.log(`User ${username} not found`);
   }
 };
 
-
 const deleteTask = async () => {
   try {
-    const tasks = await readTasks(); // Read tasks asynchronously
+    const data = await readTasks(); // Read tasks asynchronously
 
-    if (tasks.length === 0) {
+    if (data.length === 0) {
       console.log("No tasks to delete.");
       mainMenu();
       return;
     }
-
-    inquirer
-      .prompt([
-        {
-          type: "list",
-          name: "taskIndex",
-          message: "Select a task to delete:",
-          choices: tasks.map((task, index) => ({
-            name: `${index + 1}. ${task}`,
-            value: index,
-          })),
-        },
-      ])
-      .then(async (answers) => {
-        const deletedTask = tasks.splice(answers.taskIndex, 1)[0];
-        await writeTasks(tasks);
-        console.log(`Task "${deletedTask}" has been deleted.`);
+    const { username } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "username",
+        message: "Enter Username :",
+      },
+    ]);
+    const userIndex = data.findIndex(
+      (element) => element.username === username
+    );
+    if (userIndex === -1) {
+      console.log(`${username} can't be found.`);
+      mainMenu();
+      return;
+    } else {
+      const tasks = data[userIndex].task;
+      if(tasks.length === 0){
+        console.log("No tasks to delete.");
         mainMenu();
-      });
+        return;
+      }else{
+        const { choice } = await inquirer.prompt([
+          {
+            type: "list",
+            name: "choice",
+            message: "Select a task to delete:",
+            choices: [...tasks.map((task, index) => ({
+              name: `${index + 1}. ${task}`,
+              value: index,
+            })),{
+              name:` . Exit`,
+              value:tasks.length,
+            }],
+          },
+        ]);
+        const deletedTask = await tasks.splice(choice, 1);
+        data[userIndex].task = tasks;
+        await writeTasks(data);
+        console.log(`${deletedTask == "" ? "Nothing" : `Task ${deletedTask}`} has been deleted.`)
+        mainMenu();
+      }
+    }
   } catch (error) {
     console.error("Error:", error);
   }
@@ -213,12 +233,10 @@ const searchUsername = async () => {
 };
 
 const writeTasks = async (tasks) => {
-
   if (existsSync("tasks.json")) {
     await fs.writeFile("tasks.json", JSON.stringify(tasks, null, 2));
   } else {
     await fs.writeFile("tasks.json", `[${JSON.stringify(tasks, null, 2)}]`);
-
   }
 };
 
