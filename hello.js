@@ -81,13 +81,14 @@ const addTask = async () => {
     if (data.length === 0) {
       await writeTasks(newData);
     } else {
+      let exist = -1;
       const userIndex = data.map((element, index) => {
         if (username === element.username) {
-          return index;
+          exist = index;
         }
       });
-      if (!userIndex.includes(undefined)) {
-        data[userIndex].task.push(task);
+      if (exist !== -1) {
+        data[exist].task.push(task);
       } else {
         data.push(newData);
       }
