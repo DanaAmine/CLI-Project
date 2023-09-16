@@ -3,7 +3,7 @@
 // import figlet from 'figlet'
 // import gradient from 'gradient-string';
 
-import { hello, Task } from "./hello.js";
+import { hello, Task } from "./Tasks/Tasks.js";
 import { Command } from "commander";
 import inquirer from "inquirer";
 import chalk from "chalk";
