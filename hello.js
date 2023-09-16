@@ -51,7 +51,7 @@ const mainMenu = () => {
           deleteTask();
           break;
         case "Search":
-          searchUsername("amine");
+          searchUsername();
           break;
         case "Exit":
           console.log("good bye");
@@ -65,13 +65,19 @@ const addTask = () => {
     .prompt([
       {
         type: "input",
+        name: "username",
+        message: "Enter Username :",
+      },
+      {
+        type: "input",
         name: "task",
         message: "Enter the task:",
       },
     ])
     .then(async (answers) => {
+      const username = await answers.username;
       const task = await answers.task.trim();
-      if (task) {
+      if (task && username) {
         const tasks = await readTasks();
         tasks.push(task);
         await writeTasks(tasks);
@@ -149,13 +155,21 @@ const deleteTask = async () => {
   }
 };
 
-const searchUsername = async (username) => {
+const searchUsername = async () => {
   try {
+    const { username } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "username",
+        message: "Enter desired username :",
+      },
+    ]);
     const data = await fs.readFile("languages.json", { encoding: "utf-8" });
     const parsedData = JSON.parse(data);
     const usersArray = Object.values(parsedData);
-    const filteredUsers = usersArray.filter((element) => element.username === username);
-
+    const filteredUsers = usersArray.filter(
+      (element) => element.username === username
+    );
 
     if (filteredUsers.length === 0) {
       console.log("No user has been found.");
