@@ -4,7 +4,8 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 
 import fs from "fs/promises";
-import fsd from "fs";
+
+import { existsSync } from "fs";
 
 const hello = (Program) => {
   Program.command("welcome <username>")
@@ -52,7 +53,7 @@ const mainMenu = () => {
           deleteTask();
           break;
         case "Search":
-          searchUsername("amine");
+          searchUsername();
           break;
         case "Exit":
           console.log("good bye");
@@ -61,53 +62,52 @@ const mainMenu = () => {
     });
 };
 
-const addTask = () => {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "username",
-        message: "Enter the user:",
-      },
-      {
-        type: "input",
-        name: "task",
-        message: "Enter the task:",
-      },
-    ])
-    .then(async (answers) => {
-      const task = await answers.task.trim();
-      const username = await answers.username.trim();
-      if (task && username) {
-        const data = await readTasks();
-        if (data.length !== 0) {
-          const dataArray = Object.values(data);
-          const dataFetch = dataArray.filter(
-            (element) => element.name === username
-          );
-          console.log(dataFetch)
-          const tasks = dataFetch[0].task;
-          
 
-          console.log(tasks)
-          tasks.push(task);
-          const newData = { name: username, task: tasks };
-
-          dataArray.push(newData);
-          await writeTasks(newData);
-          console.log(`Task "${data}" added successfully.`);
+const addTask = async () => {
+  let { username, task } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "username",
+      message: "Enter Username :",
+    },
+    {
+      type: "input",
+      name: "task",
+      message: "Enter the task:",
+    },
+  ]);
+  task = task?.trim();
+  if (task && username) {
+    const data = await readTasks();
+    const newData = { username, task: [task] };
+    if (data.length === 0) {
+      await writeTasks(newData);
+    } else {
+      let exist = -1;
+      const userIndex = data.map((element, index) => {
+        if (username === element.username) {
+          exist = index;
         }
+      });
+      if (exist !== -1) {
+        data[exist].task.push(task);
+
       } else {
-        console.error("can not be empty");
+        data.push(newData);
       }
-      mainMenu();
-    });
+      await writeTasks(data);
+    }
+  } else {
+    console.error("can not be empty");
+  }
+  mainMenu();
 };
 
 const readTasks = async () => {
   try {
-    const data = await fs.readFile("./tasks.json", "utf-8");
-    return JSON.parse(data);
+    const data = await fs.readFile("tasks.json", "utf-8");
+
+    return data ? JSON.parse(data) : [];
   } catch (error) {
     if (error.code === "ENOENT") {
       // Handle the case when the file doesn't exist
@@ -170,8 +170,15 @@ const deleteTask = async () => {
   }
 };
 
-const searchUsername = async (username) => {
+const searchUsername = async () => {
   try {
+    const { username } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "username",
+        message: "Enter desired username :",
+      },
+    ]);
     const data = await fs.readFile("languages.json", { encoding: "utf-8" });
     const parsedData = JSON.parse(data);
     const usersArray = Object.values(parsedData);
@@ -193,10 +200,12 @@ const searchUsername = async (username) => {
 };
 
 const writeTasks = async (tasks) => {
-  if (fsd.existsSync("./tasks.json")) {
-    await fs.writeFile("./tasks.json", JSON.stringify(tasks, null, 2));
+
+  if (existsSync("tasks.json")) {
+    await fs.writeFile("tasks.json", JSON.stringify(tasks, null, 2));
   } else {
-    await fs.writeFile("./tasks.json", `[${JSON.stringify(tasks, null, 2)}]`);
+    await fs.writeFile("tasks.json", `[${JSON.stringify(tasks, null, 2)}]`);
+
   }
 };
 
